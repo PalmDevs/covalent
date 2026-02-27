@@ -6,6 +6,9 @@
 
 ## Features
 
+> [!NOTE]  
+> Covalent currently targets React Native 0.81.6, with Hermes V0 (VM-only) and New Architecture enabled.
+
 **Implemented**
 
 - Running custom scripts in the JavaScript environment of the app
