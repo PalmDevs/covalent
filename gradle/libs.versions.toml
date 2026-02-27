@@ -1,0 +1,6 @@
+[versions]
+android-core-ktx = "1.17.0"
+
+[libraries]
+android-core-ktx = { module = "androidx.core:core-ktx", version.ref = "android-core-ktx" }
+xposed-api = { module = "de.robv.android.xposed:api", version = "82" }
