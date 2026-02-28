@@ -9,16 +9,19 @@
 > [!NOTE]  
 > Covalent currently targets React Native 0.81.6, with Hermes V0 (VM-only) and New Architecture enabled.
 >
-> If you are looking to help bump supported targets, please search for `@Target` comments.
+> If you are looking to bump supported targets, please search for `@Target` comments.
 > They indicate areas of the code that are likely to be affected by changes in React Native.
 
 **Implemented**
 
 - **Running custom Hermes bytecode**: Runs before the app's own bytecode runs
-- **Bidirectional communication without C++**: [More details here](./app/src/main/kotlin/me/palmdevs/covalent/tweaks/CovalentBridgeSupport.kt)
-- **React Native DevSupport forced on**: LogBox on uncaught errors, ability to reload with double-R, packager connection open
-- **Native hooking with C++**: able to access JSI Runtime. However, you need to match headers to match the app's
-  exactly in order for this to work.
+- **Bidirectional communication**: Allows custom JS to communicate with native and vice versa, without
+  using fragile C++
+  hooks. [More details here](./app/src/main/kotlin/me/palmdevs/covalent/tweaks/CovalentBridgeSupport.kt).
+- **React Native DevSupport forced on**: LogBox on uncaught errors, ability to reload with double-R, packager connection
+  open
+- **Native hooking with C++**: JSI runtime is accessible, but is fragile and can break easily from app to app
+  and time to time.
 
 **Planned**
 
@@ -26,7 +29,7 @@
 - JS part of the framework
 - Development server for quick reloading of scripts
 - Settings page for enabling/disabling features and modifying settings
-- **Catalyst**: helper functions for modifying the app, such as hooking functions, modifying UI, etc.
+- **Catalyst**: JS utilities, Metro module discovery, hooking functions, modifying UI, etc.
 - React DevTools support
 
 **Not Planned**
