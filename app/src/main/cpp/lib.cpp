@@ -1,3 +1,5 @@
+#include <jni.h>
+#include <dlfcn.h>
 #include <fbjni/fbjni.h>
 #include <ReactCommon/RuntimeExecutor.h>
 #include <jsi/jsi.h>
@@ -11,6 +13,31 @@ using namespace facebook;
 using namespace facebook::jni;
 using namespace facebook::react;
 
+// This prevents build-time linking to libjsi.so but dynamically finds the
+// real destructor at runtime so Hermes can garbage collect your injected strings.
+namespace facebook {
+namespace jsi {
+    Value::~Value() {
+        typedef void (*RealDestructor)(Value*);
+        static RealDestructor real_destructor = nullptr;
+
+        if (!real_destructor) {
+            void* jsiHandle = dlopen("libjsi.so", RTLD_NOW | RTLD_GLOBAL);
+            if (jsiHandle) {
+                real_destructor = (RealDestructor)dlsym(jsiHandle, "_ZN8facebook3jsi5ValueD2Ev");
+                if (!real_destructor) {
+                    real_destructor = (RealDestructor)dlsym(jsiHandle, "_ZN8facebook3jsi5ValueD1Ev");
+                }
+            }
+        }
+
+        if (real_destructor) {
+            real_destructor(this);
+        }
+    }
+}
+}
+
 namespace facebook::react {
     class JRuntimeExecutor : public jni::HybridClass<JRuntimeExecutor> {
     public:
@@ -19,7 +46,8 @@ namespace facebook::react {
     };
 }
 
-void injectJSI(alias_ref<jclass>, jlong nativePointer) {
+extern "C" JNIEXPORT void JNICALL
+Java_me_palmdevs_covalent_tweaks_JSIInjector_injectJSI(JNIEnv* env, jclass clazz, jlong nativePointer) {
     LOGI("Called with addr: %llx", (long long)nativePointer);
 
     if (!nativePointer) {
@@ -42,12 +70,4 @@ void injectJSI(alias_ref<jclass>, jlong nativePointer) {
     } catch (const std::exception& e) {
         LOGE("error: %s", e.what());
     }
-}
-
-JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void*) {
-    return initialize(vm, [] {
-        registerNatives("me/palmdevs/covalent/tweaks/JSIInjector", {
-            makeNativeMethod("injectJSI", injectJSI),
-        });
-    });
 }

@@ -10,18 +10,28 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
         lib.cpp
 )
 
-target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
-        ${CMAKE_SOURCE_DIR}/include
+include(FetchContent)
+
+FetchContent_Declare(
+    fbjni_repo
+    GIT_REPOSITORY https://github.com/facebookincubator/fbjni.git
+    # @Target: RN 0.81.6 uses fbjni v0.7.0
+    GIT_TAG        v0.7.0
 )
 
-find_package(fbjni REQUIRED CONFIG)
-find_package(ReactAndroid REQUIRED CONFIG)
+FetchContent_GetProperties(fbjni_repo)
+if(NOT fbjni_repo_POPULATED)
+    FetchContent_Populate(fbjni_repo)
+endif()
+
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
+        ${CMAKE_SOURCE_DIR}/include
+        ${fbjni_repo_SOURCE_DIR}/cxx
+)
 
 target_link_libraries(${CMAKE_PROJECT_NAME}
         android
         log
-        fbjni::fbjni
-        ReactAndroid::jsi
 )
 
 # Bypass undefined symbols in the shared library, as they will be resolved at runtime

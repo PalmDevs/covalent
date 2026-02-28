@@ -35,10 +35,6 @@ android {
                 cmake {
                     targets("covalent")
                     abiFilters(*supportedAbis.toTypedArray())
-
-                    cppFlags += "-std=c++17" // Ensure you have C++17 or higher
-                    // Add this line below to fix the STL mismatch:
-                    arguments += "-DANDROID_STL=c++_shared"
                 }
             }
         }
@@ -83,9 +79,6 @@ android {
 
 dependencies {
     implementation(project(":api"))
-
-    compileOnly(libs.react.android)
-    implementation(libs.fbjni)
 
     compileOnly(libs.xposed.api)
     implementation(libs.android.core.ktx)
