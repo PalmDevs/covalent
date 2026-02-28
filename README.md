@@ -14,33 +14,28 @@
 
 **Implemented**
 
-- Running custom scripts in the JavaScript environment of the app
-- Exposing native functions to the JavaScript environment
-- Exposing JavaScript functions to the native environment
-- Developer support forced on
-- **Native hooking with C++**: able to access JSI Runtime, but currently requires bundling the module with
-  libraries (`libfnjni`, `libjsi`, `libc++_shared`, about 3 MB added)
-  due to not being able to load app libraries in the current namespace.
+- **Running custom Hermes bytecode**: Runs before the app's own bytecode runs
+- **Bidirectional communication without C++**: [More details here](./app/src/main/kotlin/me/palmdevs/covalent/tweaks/CovalentBridgeSupport.kt)
+- **React Native DevSupport forced on**: LogBox on uncaught errors, ability to reload with double-R, packager connection open
+- **Native hooking with C++**: able to access JSI Runtime. However, you need to match headers to match the app's
+  exactly in order for this to work.
 
 **Planned**
 
 - Load custom scripts from the network
 - JS part of the framework
 - Development server for quick reloading of scripts
+- Settings page for enabling/disabling features and modifying settings
 - **Catalyst**: helper functions for modifying the app, such as hooking functions, modifying UI, etc.
 - React DevTools support
 
-**Planned & Hard**
-
-- **React Native DevTools support**: Requires recompilation of Hermes libraries and swapping in order to expose the
-  Chrome DevTools protocol.
-
 **Not Planned**
 
+- **React Native DevTools support**: Requires recompilation of Hermes libraries and swapping in order to expose the
+  Chrome DevTools protocol. This is out of the scope for this project, but I'm interested in working on it.
 - **iOS support**: While possible, I don't have the resources to develop and test on iOS. However, I will gladly accept
   contributions for iOS if someone is interested in developing it.
-- **Static Hermes support**: This is simply out of the scope for this project, especially when hooking with C++ hasn't
-  even been done.
+- **Hermes V1 (Static Hermes) support**: This is simply out of the scope for this project.
 
 ## Documentation
 
