@@ -19,8 +19,6 @@ val scriptLoader by tweak {
     apply { _, classLoader ->
         listOf(
             $$"com.facebook.react.runtime.ReactInstance$loadJSBundle$1",
-            // In some older React Native versions, the lambda class is named differently. Hook both to be safe.
-            "com.facebook.react.runtime.ReactInstance$1",
             // TODO: On Bridgeless, hooking this will have no effect.
             "com.facebook.react.bridge.CatalystInstanceImpl"
         ).mapNotNull { classLoader.loadClassOrNull(it) }.forEach { hookLoader(it) }
