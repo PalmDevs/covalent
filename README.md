@@ -8,6 +8,9 @@
 
 > [!NOTE]  
 > Covalent currently targets React Native 0.81.6, with Hermes V0 (VM-only) and New Architecture enabled.
+>
+> If you are looking to help bump supported targets, please search for `@Target` comments.
+> They indicate areas of the code that are likely to be affected by changes in React Native.
 
 **Implemented**
 

@@ -18,6 +18,7 @@ lateinit var resources: XModuleResources
 val scriptLoader by tweak {
     apply { _, classLoader ->
         listOf(
+            // @Target: This may change between versions
             $$"com.facebook.react.runtime.ReactInstance$loadJSBundle$1",
             // TODO: On Bridgeless, hooking this will have no effect.
             "com.facebook.react.bridge.CatalystInstanceImpl"
