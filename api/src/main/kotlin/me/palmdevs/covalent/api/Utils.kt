@@ -4,8 +4,6 @@ import android.app.AndroidAppHelper
 import android.content.Intent
 import kotlin.system.exitProcess
 
-annotation class UnstableUtilsApi
-
 fun reloadApp() {
     val application = AndroidAppHelper.currentApplication()
     val intent = application.packageManager.getLaunchIntentForPackage(application.packageName)
