@@ -64,11 +64,13 @@ val covalentBridgeSupport by tweak {
  *
  * The result will be a `Promise<object>` with either a `result` or `error` key:
  *
- * [Unit] arguments will be converted to `null` when passing the result back to JS.
+ * [Unit] return values will be converted to `null` when passing the result back to JS.
  *
  * ```js
  * {
- *   result: unknown // The return value of the method
+ *   [NATIVE_CALL_KEY]: {
+ *     result: unknown // The return value of the method
+ *   }
  * }
  * ```
  *
@@ -76,9 +78,13 @@ val covalentBridgeSupport by tweak {
  *
  * ```js
  * {
- *   error: string
+ *   [NATIVE_CALL_KEY]: {
+ *     error: string
+ *   }
  * }
  * ```
+ *
+ * Once again, [NATIVE_CALL_KEY] is set above.
  */
 fun setupJSToNativeBridge(classLoader: ClassLoader) {
     val arguments = classLoader.loadClass("com.facebook.react.bridge.Arguments")
@@ -95,7 +101,7 @@ fun setupJSToNativeBridge(classLoader: ClassLoader) {
             before {
                 val (callData, promise) = args
                 callNativeMethod(callData!!).let {
-                    promiseResolve.invoke(promise!!, it.toNativeObject())
+                    promiseResolve.invoke(promise!!, mapOf(NATIVE_CALL_KEY to it).toNativeObject())
                     result = null
                 }
             }
@@ -148,13 +154,13 @@ private fun Tweak.setupNativeToJSBridge(classLoader: ClassLoader) {
 
 @Suppress("UNCHECKED_CAST")
 private fun callNativeMethod(rawCallData: Any): Map<String, Any?> = try {
-    val callData = rawCallData.toHashMap()[NATIVE_CALL_KEY] as? HashMap<String, Any?>
+    val callData = rawCallData.toHashMap()[NATIVE_CALL_KEY] as? Map<String, Any?>
         ?: throw Error("Invalid native call data")
     val name = callData[NATIVE_CALL_METHOD_KEY] as? String
         ?: throw Error("Invalid native call method name")
     val method = methods[name]
         ?: throw Error("Native method not registered: $name")
-    val args = callData[NATIVE_CALL_ARGS_KEY]?.toHashMap() as? Map<String, Any?>
+    val args = callData[NATIVE_CALL_ARGS_KEY] as? Map<String, Any?>
         ?: throw Error("Invalid native call args")
 
     val result = method(args).toNativeObject()
@@ -182,7 +188,7 @@ fun jsCaller(methodName: String, args: Map<String, Any?>) {
 }
 
 @Suppress("UNCHECKED_CAST")
-private fun Any.toHashMap() = readableMapToHashMap.invoke(null, this) as HashMap<String, Any?>
+private fun Any.toHashMap() = readableMapToHashMap.invoke(this) as HashMap<String, Any?>
 
 private fun Any?.toNativeObject(): Any? = argumentsMakeNativeObject.invoke(
     null,
