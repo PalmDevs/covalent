@@ -17,6 +17,7 @@ class Main : IXposedHookLoadPackage, IXposedHookZygoteInit {
     private val tweaks = listOf<TweakBuilder>(
         covalentLifecycleSupport,
         covalentBridgeSupport,
+        injectJSI,
         enableDevSupport,
         scriptLoader,
         example,

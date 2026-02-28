@@ -15,6 +15,9 @@
 - Exposing native functions to the JavaScript environment
 - Exposing JavaScript functions to the native environment
 - Developer support forced on
+- **Native hooking with C++**: able to access JSI Runtime, but currently requires bundling the module with
+  libraries (`libfnjni`, `libjsi`, `libc++_shared`, about 3 MB added)
+  due to not being able to load app libraries in the current namespace.
 
 **Planned**
 
@@ -28,7 +31,6 @@
 
 - **React Native DevTools support**: Requires recompilation of Hermes libraries and swapping in order to expose the
   Chrome DevTools protocol.
-- Truly native hooking with C++
 
 **Not Planned**
 

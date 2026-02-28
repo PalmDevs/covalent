@@ -1,6 +1,11 @@
 [versions]
 android-core-ktx = "1.17.0"
+fbjni = "0.7.0"
+#noinspection NewerVersionAvailable - We target specific versions of RN
+react-android = "0.81.6"
 
 [libraries]
 android-core-ktx = { module = "androidx.core:core-ktx", version.ref = "android-core-ktx" }
+fbjni = { module = "com.facebook.fbjni:fbjni", version.ref = "fbjni" }
+react-android = { module = "com.facebook.react:react-android", version.ref = "react-android" }
 xposed-api = { module = "de.robv.android.xposed:api", version = "82" }
