@@ -8,6 +8,8 @@ project("covalent" C CXX)
 
 add_library(${CMAKE_PROJECT_NAME} SHARED
         lib.cpp
+        # Compile the JSI implementation to include deconstructors for our jsi::Values
+        include/jsi/jsi.cpp
 )
 
 include(FetchContent)
