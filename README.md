@@ -22,6 +22,7 @@
   open
 - **Native hooking with C++**: JSI runtime is accessible, but is fragile and can break easily from app to app
   and time to time.
+- **React DevTools support**: Binary is taken from [revenge-mod/react-devtools-core@7.0.1](https://github.com/revenge-mod/react-devtools-core/releases/tag/7.0.1).
 
 **Planned**
 
@@ -30,7 +31,6 @@
 - Development server for quick reloading of scripts
 - Settings page for enabling/disabling features and modifying settings
 - **Catalyst**: JS utilities, Metro module discovery, hooking functions, modifying UI, etc.
-- React DevTools support
 
 **Not Planned**
 

@@ -13,5 +13,7 @@ const val TARGET_ACTIVITY_CLASS = "android.app.Activity"
 val scriptAssets = listOf(
     // The example bundle logs into the console when it is loaded.
     // Do logcat | grep ReactNativeJS to see the logs.
-    "assets://example.bundle"
+    "assets://example.bundle",
+    // @Target: Needs updating in order to keep up with updates
+    "assets://react-devtools.bundle"
 )
