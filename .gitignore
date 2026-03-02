@@ -42,3 +42,7 @@ out/
 data.db
 data.db-shm
 data.db-wal
+
+### JavaScript ###
+node_modules/
+bun.lock

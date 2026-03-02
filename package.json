@@ -1,0 +1,62 @@
+{
+	"name": "covalent",
+	"module": "index.ts",
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"compile-script": "bun ./scripts/compile-script"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.4.5",
+		"@parcel/watcher": "^2.5.6",
+		"@swc/core": "^1.15.18",
+		"@types/bun": "latest",
+		"chalk": "^5.6.2",
+		"rolldown": "^1.0.0-rc.6"
+	},
+	"peerDependencies": {
+		"typescript": "^5"
+	},
+	"overrides": {
+		"@jest/create-cache-key-function": "npm:dry-uninstall",
+		"@react-native/assets-registry": "npm:dry-uninstall",
+		"@react-native/codegen": "npm:dry-uninstall",
+		"@react-native/community-cli-plugin": "npm:dry-uninstall",
+		"@react-native/gradle-plugin": "npm:dry-uninstall",
+		"@react-native/js-polyfills": "npm:dry-uninstall",
+		"@react-native/normalize-colors": "npm:dry-uninstall",
+		"@react-native/virtualized-lists": "npm:dry-uninstall",
+		"abort-controller": "npm:dry-uninstall",
+		"anser": "npm:dry-uninstall",
+		"ansi-regex": "npm:dry-uninstall",
+		"babel-jest": "npm:dry-uninstall",
+		"babel-plugin-syntax-hermes-parser": "npm:dry-uninstall",
+		"base64-js": "npm:dry-uninstall",
+		"commander": "npm:dry-uninstall",
+		"flow-enums-runtime": "npm:dry-uninstall",
+		"invariant": "npm:dry-uninstall",
+		"jest-environment-node": "npm:dry-uninstall",
+		"memoize-one": "npm:dry-uninstall",
+		"metro-runtime": "npm:dry-uninstall",
+		"metro-source-map": "npm:dry-uninstall",
+		"nullthrows": "npm:dry-uninstall",
+		"pretty-format": "npm:dry-uninstall",
+		"promise": "npm:dry-uninstall",
+		"react-refresh": "npm:dry-uninstall",
+		"regenerator-runtime": "npm:dry-uninstall",
+		"scheduler": "npm:dry-uninstall",
+		"semver": "npm:dry-uninstall",
+		"stacktrace-parser": "npm:dry-uninstall",
+		"tinyglobby": "npm:dry-uninstall",
+		"whatwg-fetch": "npm:dry-uninstall",
+		"ws": "npm:dry-uninstall",
+		"yargs": "npm:dry-uninstall"
+	},
+	"dependencies": {
+		"react-native": "0.81.6"
+	},
+	"trustedDependencies": [
+		"@parcel/watcher",
+		"@swc/core"
+	]
+}
