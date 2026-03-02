@@ -45,7 +45,7 @@ val covalentBridgeSupport by tweak {
 
         methods["covalent.testJS"] = { args ->
             log.i("Calling test JS method with: $args")
-            jsCaller("covalent.test", args)
+            "covalent.test"(args)
         }
 
         setupJSToNativeBridge(classLoader)
