@@ -4,9 +4,10 @@ import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.IXposedHookZygoteInit
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import me.palmdevs.covalent.api.TweakBuilder
+import me.palmdevs.covalent.api.TweakContext
 import me.palmdevs.covalent.tweaks.*
 
-lateinit var modulePath: String
+private lateinit var modulePath: String
 
 @Suppress("UNUSED")
 class Main : IXposedHookLoadPackage, IXposedHookZygoteInit {
@@ -30,12 +31,17 @@ class Main : IXposedHookLoadPackage, IXposedHookZygoteInit {
     override fun handleLoadPackage(param: XC_LoadPackage.LoadPackageParam) {
         if (hooked) return
 
-        for (tweak in tweaks) tweak.build(
-            ::methodRegistrar,
-            ::jsCaller,
-            ::withContext,
-            ::withActivity
-        ).apply(param.appInfo, param.classLoader)
+        val tweakContext = TweakBuilder.createContext(
+            modulePath = modulePath,
+            appInfo = param.appInfo,
+            classLoader = param.classLoader,
+            registerMethod = ::methodRegistrar,
+            callJSMethod = ::jsCaller,
+            withAppContext = ::withContext,
+            withAppActivity = ::withActivity,
+        )
+
+        for (tweak in tweaks) tweak.build(tweakContext).apply()
 
         hooked = true
     }

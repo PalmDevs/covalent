@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.os.Bundle
-import android.util.Log
 import me.palmdevs.covalent.TARGET_ACTIVITY_CLASS
 import me.palmdevs.covalent.api.tweak
 import me.palmdevs.covalent.hook
@@ -29,7 +28,7 @@ private var onActivityHooks = mutableListOf<(Activity) -> Unit>()
  * This is necessary because many operations require a [Context] or [Activity], and we need to provide them to other tweaks in a safe way.
  */
 val covalentLifecycleSupport by tweak {
-    apply { _, classLoader ->
+    apply {
         val reactActivity = classLoader.loadClass(TARGET_ACTIVITY_CLASS)
 
         ContextWrapper::class.java.method("attachBaseContext", Context::class.java).hook {

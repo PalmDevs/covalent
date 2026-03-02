@@ -1,6 +1,5 @@
 package me.palmdevs.covalent.tweaks
 
-import android.util.Log
 import de.robv.android.xposed.XposedHelpers
 import me.palmdevs.covalent.*
 import me.palmdevs.covalent.api.reloadApp
@@ -14,7 +13,7 @@ import me.palmdevs.covalent.api.tweak
  * This is useful for development and debugging, but should be used with caution as it may have performance implications and could expose sensitive information in production environments.
  */
 val enableDevSupport by tweak {
-    apply { _, classLoader ->
+    apply {
         val clazz = classLoader.loadClass("com.facebook.react.defaults.DefaultReactHost")
 
         XposedHelpers.findAndHookMethod(

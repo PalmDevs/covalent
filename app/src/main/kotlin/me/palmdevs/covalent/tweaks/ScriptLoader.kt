@@ -16,7 +16,7 @@ lateinit var resources: XModuleResources
  * You can configure [scriptAssets] to set which scripts to load when React Native loads a bundle. These should be Hermes bytecode bundles.
  */
 val scriptLoader by tweak {
-    apply { _, classLoader ->
+    apply {
         listOf(
             // @Target: This may change between versions
             $$"com.facebook.react.runtime.ReactInstance$loadJSBundle$1",
@@ -61,7 +61,7 @@ private fun HookScope.runCustomScripts(tweak: Tweak, loadScriptFromAssets: Metho
     val loadSynchronously = args[2]
 
     try {
-        if (!::resources.isInitialized) resources = XModuleResources.createInstance(modulePath, null)
+        if (!::resources.isInitialized) resources = XModuleResources.createInstance(tweak.modulePath, null)
 
         for (asset in scriptAssets) {
             XposedBridge.invokeOriginalMethod(

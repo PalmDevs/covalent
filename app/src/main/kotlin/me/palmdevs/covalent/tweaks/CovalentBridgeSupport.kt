@@ -32,7 +32,7 @@ private lateinit var logger: Log
  * @see setupNativeToJSBridge
  */
 val covalentBridgeSupport by tweak {
-    apply { _, classLoader ->
+    apply {
         logger = log
 
         // Tweaks should register their methods in the start block

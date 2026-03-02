@@ -1,9 +1,9 @@
 package me.palmdevs.covalent.tweaks
 
-import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import me.palmdevs.covalent.api.tweak
+import me.palmdevs.covalent.methodHook
 
 object JSIInjector {
     init {
@@ -20,12 +20,12 @@ object JSIInjector {
  * Currently, this sets a `__COVALENT__` global, but it can be modified to do more complex things.
  */
 val injectJSI by tweak {
-    apply { _, classLoader ->
-        val reactInstanceClass = XposedHelpers.findClass("com.facebook.react.runtime.ReactInstance", classLoader)
+    apply {
+        val reactInstanceClass = classLoader.loadClass("com.facebook.react.runtime.ReactInstance")
 
-        XposedBridge.hookAllConstructors(reactInstanceClass, object : XC_MethodHook() {
-            override fun afterHookedMethod(param: MethodHookParam) {
-                val reactInstance = param.thisObject
+        XposedBridge.hookAllConstructors(reactInstanceClass, methodHook {
+            after {
+                val reactInstance = thisObject
 
                 log.i("ReactInstance created")
 
@@ -44,6 +44,6 @@ val injectJSI by tweak {
                     }
                 }
             }
-        })
+        }.build())
     }
 }

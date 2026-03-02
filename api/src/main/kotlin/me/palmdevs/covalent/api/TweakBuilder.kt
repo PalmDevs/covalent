@@ -1,5 +1,7 @@
 package me.palmdevs.covalent.api
 
+import android.app.Activity
+import android.content.Context
 import android.content.pm.ApplicationInfo
 import kotlin.reflect.KProperty
 
@@ -15,16 +17,34 @@ class TweakBuilder private constructor() : TweakDelegate {
         internal fun create(block: TweakBuilder.() -> Unit): TweakDelegate {
             return TweakBuilder().apply(block)
         }
+
+        fun createContext(
+            modulePath: String,
+            appInfo: ApplicationInfo,
+            classLoader: ClassLoader,
+            registerMethod: MethodRegistrar,
+            callJSMethod: JSCaller,
+            withAppContext: ContextSubscriber,
+            withAppActivity: ActivitySubscriber,
+        ) = object : TweakContext {
+            override val modulePath: String = modulePath
+            override val appInfo: ApplicationInfo = appInfo
+            override val classLoader: ClassLoader = classLoader
+            override val registerMethod: MethodRegistrar = registerMethod
+            override val callJSMethod: JSCaller = callJSMethod
+            override val withAppContext: ContextSubscriber = withAppContext
+            override val withAppActivity: ActivitySubscriber = withAppActivity
+        }
     }
 
     private var name: String? = null
-    private var apply: (Tweak.(ApplicationInfo, ClassLoader) -> Unit)? = null
+    private var apply: TweakApplyFunction? = null
 
 
     /**
      * Sets the action to be performed when the tweak is executed.
      */
-    fun apply(apply: Tweak.(ApplicationInfo, ClassLoader) -> Unit) {
+    fun apply(apply: TweakApplyFunction) {
         this@TweakBuilder.apply = apply
     }
 
@@ -42,22 +62,10 @@ class TweakBuilder private constructor() : TweakDelegate {
      *
      * If you are a developer, you do not need to call this method directly.
      */
-    fun build(
-        registerNativeMethod: MethodRegistrar,
-        callJSMethod: JSCaller,
-        withContext: ContextSubscriber,
-        withActivity: ActivitySubscriber
-    ): Tweak {
+    fun build(context: TweakContext): Tweak {
         return name?.let { name ->
             apply?.let { apply ->
-                Tweak(
-                    name = name,
-                    apply = apply,
-                    callJSMethod = callJSMethod,
-                    registerNativeMethod = registerNativeMethod,
-                    withContext = withContext,
-                    withActivity = withActivity
-                )
+                Tweak(name, apply, context)
             } ?: throw Exception("Tweak does not apply anything")
         } ?: throw Exception("Tweak name has not been set")
     }
