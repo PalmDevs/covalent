@@ -35,11 +35,17 @@ val covalentBridgeSupport by tweak {
     apply {
         logger = log
 
-        // Tweaks should register their methods in the start block
+        // Tweaks should register their methods in the apply block, which will run after clearing
         methods.clear()
+
         methods["covalent.test"] = { args ->
-            log.i("Test method called")
+            log.i("Test method called with: $args")
             args
+        }
+
+        methods["covalent.testJS"] = { args ->
+            log.i("Calling test JS method with: $args")
+            jsCaller("covalent.test", args)
         }
 
         setupJSToNativeBridge(classLoader)
@@ -183,7 +189,7 @@ fun jsCaller(methodName: String, args: Map<String, Any?>) {
         reactInstance.get()!!,
         JS_CALLABLE_MODULE_NAME,
         methodName,
-        args.toNativeObject(),
+        listOf(args).toNativeObject(),
     )
 }
 
