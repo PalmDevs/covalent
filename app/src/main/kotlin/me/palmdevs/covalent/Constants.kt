@@ -15,5 +15,6 @@ val scriptAssets = listOf(
     // Do logcat | grep ReactNativeJS to see the logs.
     "assets://example.bundle",
     // @Target: Needs updating in order to keep up with updates
-    "assets://react-devtools.bundle"
+    "assets://react-devtools.bundle",
+    "assets://dev-constants.bundle",
 )
