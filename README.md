@@ -7,12 +7,12 @@
 ## Features
 
 > [!NOTE]  
-> Covalent currently targets React Native 0.81.6, with Hermes V0 (VM-only) and New Architecture enabled.
+> Covalent currently targets React Native 0.86.3, with Hermes V1 (Static Hermes + VM) and New Architecture enabled.
 >
 > If you are looking to bump supported targets, please search for `@Target` comments.
 > They indicate areas of the code that are likely to be affected by changes in React Native.
 
-**Implemented**
+### Implemented
 
 - **Running custom Hermes bytecode**: Runs before the app's own bytecode runs
 - **Bidirectional communication**: Allows custom JS to communicate with native and vice versa, without
@@ -23,22 +23,21 @@
 - **Native hooking with C++**: JSI runtime is accessible, but is fragile and can break easily from app to app
   and time to time.
 - React DevTools support
-- **Compile custom scripts**: With [Rolldown](https://rolldown.rs) and Hermes Compiler (hermesc)
+- **Compile custom scripts**: With [Rolldown](https://rolldown.rs) and optionally Hermes Compiler (hermesc)
+- **React Native DevTools support**: Access to Console, Memory, and Components tabs,
+  with the ability to inspect and modify props and state of components. [More details here](./docs/react-native-devtools.md).
 
-**Planned**
+### Planned
 
 - Load custom scripts from the network
 - Development server for quick reloading of scripts
 - Settings page for enabling/disabling features and modifying settings
 - **Catalyst**: JS utilities, Metro module discovery, hooking functions, modifying UI, etc.
 
-**Not Planned**
+### Not Planned
 
-- **React Native DevTools support**: Requires recompilation of Hermes libraries and swapping in order to expose the
-  Chrome DevTools protocol. This is out of the scope for this project, but I'm interested in working on it.
 - **iOS support**: While possible, I don't have the resources to develop and test on iOS. However, I will gladly accept
   contributions for iOS if someone is interested in developing it.
-- **Hermes V1 (Static Hermes) support**: This is simply out of the scope for this project.
 
 ## Documentation
 
