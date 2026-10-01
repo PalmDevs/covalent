@@ -109,6 +109,7 @@ fun setupJSToNativeBridge(classLoader: ClassLoader) {
         .method("readAsDataURL", readableMap, promise).hook {
             before {
                 val (callData, promise) = args
+                if (!callData.isMaybeNativeCall()) return@before
                 callNativeMethod(callData!!).let {
                     promiseResolve.invoke(promise!!, mapOf(NATIVE_CALL_KEY to it).toNativeObject())
                     result = null
@@ -159,6 +160,12 @@ private fun Tweak.setupNativeToJSBridge(classLoader: ClassLoader) {
             }
         }.build(),
     )
+}
+
+private fun Any?.isMaybeNativeCall(): Boolean {
+    if (this !is Map<*, *>) return false
+    if (!this.containsKey(NATIVE_CALL_KEY)) return false
+    return true
 }
 
 @Suppress("UNCHECKED_CAST")
