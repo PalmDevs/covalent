@@ -5,6 +5,8 @@ Research notes on getting React Native DevTools (Fusebox) working against produc
 > [!NOTE]
 > Everything here targets **React Native 0.86.3** with **Hermes V1** (`com.facebook.hermes:hermes-android:250829098.0.17`, bytecode version 98), New Architecture, on Android.  
 > Findings come from reading the RN and Hermes sources at those tags and from diffing the prebuilt `release` and `debugOptimized` AARs published on Maven Central.
+>
+> Don't want to read the details? Jump to the [Reproducing](#reproducing) section to test it on your own.
 
 ## Summary
 
@@ -257,5 +259,15 @@ Known limitations:
 ### Reproducing
 
 1. Build and install Covalent. Enable it for the target app in your Xposed manager.
-2. Start Metro (any React Native project on 0.86.3 works as the inspector proxy) and run `adb reverse tcp:8081 tcp:8081`.
+2. Start Metro (any React Native project on 0.86.3 works as the inspector proxy) and run `adb reverse tcp:8081 tcp:8081`.  
+   If you don't have a React Native project, use the sample app:
+
+   ```sh
+   # Don't forget to install Bun first: https://bun.sh
+   git clone https://github.com/PalmDevs/covalent-sample-app.git
+   cd covalent-sample-app
+   bun install
+   bun start
+   ```
+
 3. Launch the app, then open React Native DevTools, either from Metro (`j`) or from `http://localhost:8081/json/list`.
