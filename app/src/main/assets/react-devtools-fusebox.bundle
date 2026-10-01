@@ -1,0 +1,138 @@
+(function() {
+	Object.defineProperty;
+	function _check_private_redeclaration(obj, privateCollection) {
+		if (privateCollection.has(obj)) throw new TypeError("Cannot initialize the same private elements twice on an object");
+	}
+	function _class_apply_descriptor_get(receiver, descriptor) {
+		if (descriptor.get) return descriptor.get.call(receiver);
+		return descriptor.value;
+	}
+	function _class_call_check(instance, Constructor) {
+		if (!(instance instanceof Constructor)) throw new TypeError("Cannot call a class as a function");
+	}
+	function _class_extract_field_descriptor(receiver, privateMap, action) {
+		if (!privateMap.has(receiver)) throw new TypeError("attempted to " + action + " private field on non-instance");
+		return privateMap.get(receiver);
+	}
+	function _class_private_field_get(receiver, privateMap) {
+		return _class_apply_descriptor_get(receiver, _class_extract_field_descriptor(receiver, privateMap, "get"));
+	}
+	function _class_private_field_init(obj, privateMap, value) {
+		_check_private_redeclaration(obj, privateMap);
+		privateMap.set(obj, value);
+	}
+	function _defineProperties(target, props) {
+		for (var i = 0; i < props.length; i++) {
+			var descriptor = props[i];
+			descriptor.enumerable = descriptor.enumerable || false;
+			descriptor.configurable = true;
+			if ("value" in descriptor) descriptor.writable = true;
+			Object.defineProperty(target, descriptor.key, descriptor);
+		}
+	}
+	function _create_class(Constructor, protoProps, staticProps) {
+		if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+		if (staticProps) _defineProperties(Constructor, staticProps);
+		return Constructor;
+	}
+	function _define_property(obj, key, value) {
+		if (key in obj) Object.defineProperty(obj, key, {
+			value,
+			enumerable: true,
+			configurable: true,
+			writable: true
+		});
+		else obj[key] = value;
+		return obj;
+	}
+	var BINDING_NAME = "__CHROME_DEVTOOLS_FRONTEND_BINDING__";
+	var _listeners = /* @__PURE__ */ new WeakMap();
+	var EventScope = /* @__PURE__ */ function() {
+		"use strict";
+		function EventScope() {
+			_class_call_check(this, EventScope);
+			_class_private_field_init(this, _listeners, {
+				writable: true,
+				value: /* @__PURE__ */ new Set()
+			});
+		}
+		_create_class(EventScope, [
+			{
+				key: "addEventListener",
+				value: function addEventListener(listener) {
+					_class_private_field_get(this, _listeners).add(listener);
+				}
+			},
+			{
+				key: "removeEventListener",
+				value: function removeEventListener(listener) {
+					_class_private_field_get(this, _listeners).delete(listener);
+				}
+			},
+			{
+				key: "emit",
+				value: function emit(value) {
+					for (var listener of _class_private_field_get(this, _listeners)) listener(value);
+				}
+			}
+		]);
+		return EventScope;
+	}();
+	var Domain = /* @__PURE__ */ function() {
+		"use strict";
+		function Domain(name) {
+			_class_call_check(this, Domain);
+			_define_property(this, "name", void 0);
+			_define_property(this, "onMessage", new EventScope());
+			if (globalThis[BINDING_NAME] == null) throw new Error(`Could not create domain ${name}: receiving end doesn't exist`);
+			this.name = name;
+		}
+		_create_class(Domain, [{
+			key: "sendMessage",
+			value: function sendMessage(message) {
+				globalThis[BINDING_NAME](JSON.stringify({
+					domain: this.name,
+					message
+				}));
+			}
+		}]);
+		return Domain;
+	}();
+	var domains = /* @__PURE__ */ new Map();
+	var FuseboxReactDevToolsDispatcher = {
+		BINDING_NAME,
+		onDomainInitialization: new EventScope(),
+		initializeDomain(name) {
+			var domain = new Domain(name);
+			domains.set(name, domain);
+			this.onDomainInitialization.emit(domain);
+			return domain;
+		},
+		sendMessage(name, message) {
+			var domain = domains.get(name);
+			if (!domain) throw new Error(`Could not send message to ${name}: domain doesn't exist`);
+			domain.onMessage.emit(JSON.parse(message));
+		}
+	};
+	Object.defineProperty(globalThis, "__FUSEBOX_REACT_DEVTOOLS_DISPATCHER__", {
+		value: FuseboxReactDevToolsDispatcher,
+		configurable: false,
+		enumerable: false,
+		writable: false
+	});
+	var disconnect = null;
+	FuseboxReactDevToolsDispatcher.onDomainInitialization.addEventListener((domain) => {
+		if (domain.name !== "react-devtools") return;
+		disconnect?.();
+		disconnect = __REACT_DEVTOOLS__.exports.connectWithCustomMessagingProtocol({
+			onSubscribe: (listener) => domain.onMessage.addEventListener(listener),
+			onUnsubscribe: (listener) => domain.onMessage.removeEventListener(listener),
+			onMessage: (event, payload) => domain.sendMessage({
+				event,
+				payload
+			})
+		});
+	});
+})();
+
+//# sourceURL=covalent://assets/react-devtools-fusebox.bundle

@@ -29,6 +29,9 @@ const filePaths =
 const __DEV__ =
 	process.argv.includes('--dev') || process.env.NODE_ENV === 'development'
 
+// Emit Hermes bytecode instead of plain JS. This will be faster to load, but will not work across RN versions.
+const __HBC__ = process.argv.includes('--hbc')
+
 // If this file is being run directly, build the project
 if (main === import.meta.filename) {
 	for (const path of filePaths) {
@@ -39,6 +42,7 @@ export default async function build(
 	filePath: string,
 	dev = __DEV__,
 	log = true,
+	hbc = __HBC__,
 ) {
 	const start = performance.now()
 
@@ -59,33 +63,40 @@ export default async function build(
 		plugins: [
 			shimAliases(SHIMS_DIR),
 			hermesSwcPlugin(),
-			hermesCPlugin({
-				flags: [
-					dev ? '-Og' : '-O',
-					dev ? '-g3' : '-g1',
-					'-reuse-prop-cache',
-					'-optimized-eval',
-					'-strict',
-					'-finline',
-				],
-				before(ver) {
-					if (log) {
-						console.debug(
-							chalk.cyanBright('\u{1F5CE} JS compilation finished...'),
-						)
+			hbc &&
+				hermesCPlugin({
+					flags: [
+						dev ? '-Og' : '-O',
+						dev ? '-g3' : '-g1',
+						'-reuse-prop-cache',
+						'-optimized-eval',
+						'-strict',
+						'-finline',
+					],
+					before(ver) {
+						if (log) {
+							console.warn(
+								chalk.yellow(
+									'\u{26A0} You are compiling with Hermes bytecode. This is not compatible across React Native versions.',
+								),
+							)
 
-						console.debug(
-							chalk.gray(`\u{1F5CE} Compiling bytecode with ${ver}...`),
-						)
-					}
-				},
-				after() {
-					if (log)
-						console.debug(
-							chalk.cyanBright('\u{1F5CE} Bytecode compilation finished'),
-						)
-				},
-			}),
+							console.debug(
+								chalk.cyanBright('\u{1F5CE} JS compilation finished...'),
+							)
+
+							console.debug(
+								chalk.gray(`\u{1F5CE} Compiling bytecode with ${ver}...`),
+							)
+						}
+					},
+					after() {
+						if (log)
+							console.debug(
+								chalk.cyanBright('\u{1F5CE} Bytecode compilation finished'),
+							)
+					},
+				}),
 		],
 	})
 

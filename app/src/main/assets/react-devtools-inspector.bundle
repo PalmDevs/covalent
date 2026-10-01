@@ -1,0 +1,65 @@
+(function() {
+	Object.defineProperty;
+	var HOST_COMPONENT = 5;
+	var HIGHLIGHT_DURATION = 2e3;
+	var hook = globalThis.__REACT_DEVTOOLS_GLOBAL_HOOK__;
+	var agent = null;
+	var hideTimeout = null;
+	var host = () => globalThis.__covalentElementInspectorHost;
+	hook.on("react-devtools", (newAgent) => {
+		agent = newAgent;
+		agent.addListener("startInspectingNative", () => host()?.setInspecting(true));
+		agent.addListener("stopInspectingNative", () => {
+			host()?.setInspecting(false);
+			host()?.highlight(null);
+		});
+		agent.addListener("showNativeHighlight", (elements) => highlight(elements));
+		agent.addListener("hideNativeHighlight", () => host()?.highlight(null));
+	});
+	globalThis.__covalentElementInspector = { inspectAt(x, y, done) {
+		var root = findRootNode();
+		if (!agent || !root) return;
+		nativeFabricUIManager.measureInWindow(root, (rootX, rootY) => nativeFabricUIManager.findNodeAtPoint(root, x - rootX, y - rootY, (internalInstanceHandle) => {
+			var instance = internalInstanceHandle?.stateNode;
+			if (!instance?.node) return;
+			select(instance);
+			highlight([instance]);
+			if (done) {
+				agent.stopInspectingNative(true);
+				host()?.setInspecting(false);
+				if (hideTimeout !== null) clearTimeout(hideTimeout);
+				hideTimeout = setTimeout(() => host()?.highlight(null), HIGHLIGHT_DURATION);
+			}
+		}));
+	} };
+	function findRootNode() {
+		for (var id of hook.renderers.keys()) for (var root of hook.getFiberRoots(id)) {
+			var fiber = root.current.child;
+			while (fiber && fiber.tag !== HOST_COMPONENT) fiber = fiber.child;
+			if (fiber?.stateNode?.node) return fiber.stateNode.node;
+		}
+		return null;
+	}
+	function select(instance) {
+		for (var candidate of [instance.canonical?.publicInstance, instance]) if (candidate != null && agent.getIDForHostInstance(candidate) != null) return agent.selectNode(candidate);
+	}
+	function measureInWindow(instance, callback) {
+		if (typeof instance?.measureInWindow === "function") instance.measureInWindow(callback);
+		else if (instance?.node) nativeFabricUIManager.measureInWindow(instance.node, callback);
+		else return false;
+		return true;
+	}
+	function highlight(instances) {
+		var rects = [];
+		var pending = 0;
+		for (var instance of instances) {
+			pending++;
+			if (!measureInWindow(instance, (x, y, width, height) => {
+				rects.push(x, y, width, height);
+				if (--pending === 0) host()?.highlight(rects);
+			})) pending--;
+		}
+	}
+})();
+
+//# sourceURL=covalent://assets/react-devtools-inspector.bundle

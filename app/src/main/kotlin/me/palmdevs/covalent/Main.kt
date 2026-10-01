@@ -20,6 +20,8 @@ class Main : IXposedHookLoadPackage, IXposedHookZygoteInit {
         covalentBridgeSupport,
         injectJSI,
         enableDevSupport,
+        enableReactNativeDevTools,
+        elementInspector,
         scriptLoader,
         example,
     )

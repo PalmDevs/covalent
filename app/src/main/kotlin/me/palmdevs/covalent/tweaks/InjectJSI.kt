@@ -29,21 +29,26 @@ val injectJSI by tweak {
 
                 log.i("ReactInstance created")
 
-                val runtimeExecutor = XposedHelpers.callMethod(reactInstance, "getUnbufferedRuntimeExecutor")
-                if (runtimeExecutor != null) {
-                    log.i("Got runtime executor: $runtimeExecutor")
+                try {
+                    val nativePointer = runtimeExecutorPointer(reactInstance!!)
 
-                    try {
-                        val destructor = XposedHelpers.getObjectField(runtimeExecutor, "mDestructor")
-                        val nativePointer = XposedHelpers.getLongField(destructor, "mNativePointer")
-
-                        log.i("Instance at 0x${nativePointer.toString(16)}")
-                        JSIInjector.injectJSI(nativePointer)
-                    } catch (e: Exception) {
-                        log.e("Failed to steal native pointer:", e)
-                    }
+                    log.i("Instance at 0x${nativePointer.toString(16)}")
+                    JSIInjector.injectJSI(nativePointer)
+                } catch (e: Exception) {
+                    log.e("Failed to steal native pointer:", e)
                 }
             }
         }.build())
     }
+}
+
+/**
+ * Gets the native pointer of the RuntimeExecutor of a [com.facebook.react.runtime.ReactInstance],
+ * which native code can read as a `JRuntimeExecutor` to run code on the JS thread.
+ */
+// @Target: This may change between versions
+internal fun runtimeExecutorPointer(reactInstance: Any): Long {
+    val runtimeExecutor = XposedHelpers.callMethod(reactInstance, "getUnbufferedRuntimeExecutor")
+    val destructor = XposedHelpers.getObjectField(runtimeExecutor, "mDestructor")
+    return XposedHelpers.getLongField(destructor, "mNativePointer")
 }

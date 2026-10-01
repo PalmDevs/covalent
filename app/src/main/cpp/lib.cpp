@@ -4,6 +4,8 @@
 #include <jsi/jsi.h>
 #include <android/log.h>
 
+#include "JRuntimeExecutor.h"
+
 #define LOG_TAG "Covalent"
 #define LOGI(fmt, ...) __android_log_print(ANDROID_LOG_INFO,  LOG_TAG, "injectJSI:native - " fmt, ##__VA_ARGS__)
 #define LOGE(fmt, ...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, "injectJSI:native - " fmt, ##__VA_ARGS__)
@@ -11,14 +13,6 @@
 using namespace facebook;
 using namespace facebook::jni;
 using namespace facebook::react;
-
-namespace facebook::react {
-    class JRuntimeExecutor : public jni::HybridClass<JRuntimeExecutor> {
-    public:
-        RuntimeExecutor runtimeExecutor_;
-        inline RuntimeExecutor get() { return runtimeExecutor_; }
-    };
-}
 
 extern "C" JNIEXPORT void JNICALL
 Java_me_palmdevs_covalent_tweaks_JSIInjector_injectJSI(JNIEnv* env, jclass clazz, jlong nativePointer) {

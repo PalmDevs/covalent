@@ -1,0 +1,69 @@
+(function() {
+	Object.defineProperty;
+	var TYPES = new Map([
+		["log", 0],
+		["debug", 1],
+		["info", 2],
+		["error", 3],
+		["warn", 4],
+		["dir", 5],
+		["dirxml", 6],
+		["table", 7],
+		["trace", 8],
+		["group", 9],
+		["groupCollapsed", 10],
+		["groupEnd", 11],
+		["clear", 12],
+		["assert", 13],
+		["timeEnd", 14],
+		["count", 15]
+	]);
+	var wrapped = /* @__PURE__ */ new WeakSet();
+	var reporting = false;
+	function report(key, args) {
+		var reportConsole = globalThis.__covalentDevToolsConsole;
+		if (!reportConsole) return;
+		var type = TYPES.get(key);
+		if (key !== "assert") reportConsole(type, ...args);
+		else if (!args[0]) reportConsole(type, ...args.slice(1));
+	}
+	function wrap(target) {
+		if (target == null || typeof target !== "object" || wrapped.has(target)) return target;
+		var cache = /* @__PURE__ */ new Map();
+		var proxy = new Proxy(target, { get(target, key, receiver) {
+			var value = Reflect.get(target, key, receiver);
+			if (typeof value !== "function" || !TYPES.has(key)) return value;
+			var cached = cache.get(key);
+			if (cached?.original === value) return cached.wrapper;
+			var wrapper = function wrapper(...args) {
+				if (reporting) return value.apply(this, args);
+				try {
+					report(key, args);
+				} catch {}
+				reporting = true;
+				try {
+					return value.apply(this, args);
+				} finally {
+					reporting = false;
+				}
+			};
+			cache.set(key, {
+				original: value,
+				wrapper
+			});
+			return wrapper;
+		} });
+		wrapped.add(proxy);
+		return proxy;
+	}
+	var current = wrap(globalThis.console);
+	Object.defineProperty(globalThis, "console", {
+		configurable: true,
+		get: () => current,
+		set: (value) => {
+			current = wrap(value);
+		}
+	});
+})();
+
+//# sourceURL=covalent://assets/devtools-console.bundle

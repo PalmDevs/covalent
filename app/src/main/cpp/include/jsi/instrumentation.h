@@ -1,7 +1,8 @@
 /*
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
- * This source code is licensed under the MIT license.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  */
 
 #pragma once
@@ -119,6 +120,9 @@ class JSI_EXPORT Instrumentation {
   /// Write basic block profile trace to the given file name.
   virtual void writeBasicBlockProfileTraceToFile(
       const std::string& fileName) const = 0;
+
+  /// Write the opcode stats to the given stream.
+  virtual void dumpOpcodeStats(std::ostream& os) const = 0;
 
   /// Dump external profiler symbols to the given file name.
   virtual void dumpProfilerSymbolsToFile(const std::string& fileName) const = 0;

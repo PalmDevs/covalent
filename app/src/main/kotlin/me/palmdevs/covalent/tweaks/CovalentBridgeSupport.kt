@@ -22,6 +22,8 @@ private lateinit var readableMapGetString: Method
 private lateinit var readableMapToHashMap: Method
 private lateinit var argumentsMakeNativeObject: Method
 
+private var argumentsInstance: Any? = null
+
 private val methods = mutableMapOf<String, (args: Map<String, Any?>) -> Any?>()
 private lateinit var logger: Log
 
@@ -99,6 +101,7 @@ fun setupJSToNativeBridge(classLoader: ClassLoader) {
 
     val promiseResolve = promise.method("resolve", Any::class.java)
     argumentsMakeNativeObject = arguments.method("makeNativeObject", Any::class.java)
+    argumentsInstance = runCatching { XposedHelpers.getStaticObjectField(arguments, "INSTANCE") }.getOrNull()
     readableMapGetString = readableMap.method("getString", String::class.java)
     readableMapToHashMap = readableMap.method("toHashMap")
 
@@ -197,7 +200,7 @@ fun jsCaller(methodName: String, args: Map<String, Any?>) {
 private fun Any.toHashMap() = readableMapToHashMap.invoke(this) as HashMap<String, Any?>
 
 private fun Any?.toNativeObject(): Any? = argumentsMakeNativeObject.invoke(
-    null,
+    argumentsInstance,
     when (this) {
         Unit -> null
         else -> this
