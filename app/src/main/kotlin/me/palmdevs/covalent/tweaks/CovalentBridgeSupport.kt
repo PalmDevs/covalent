@@ -94,7 +94,7 @@ val covalentBridgeSupport by tweak {
  *
  * Once again, [NATIVE_CALL_KEY] is set above.
  */
-fun setupJSToNativeBridge(classLoader: ClassLoader) {
+fun Tweak.setupJSToNativeBridge(classLoader: ClassLoader) {
     val arguments = classLoader.loadClass("com.facebook.react.bridge.Arguments")
     val readableMap = classLoader.loadClass("com.facebook.react.bridge.ReadableMap")
     val promise = classLoader.loadClass("com.facebook.react.bridge.Promise")
@@ -108,11 +108,15 @@ fun setupJSToNativeBridge(classLoader: ClassLoader) {
     classLoader.loadClass("com.facebook.react.modules.blob.FileReaderModule")
         .method("readAsDataURL", readableMap, promise).hook {
             before {
-                val (callData, promise) = args
-                if (!callData.isMaybeNativeCall()) return@before
-                callNativeMethod(callData!!).let {
-                    promiseResolve.invoke(promise!!, mapOf(NATIVE_CALL_KEY to it).toNativeObject())
-                    result = null
+                val (rawCallData, promise) = args
+                val callData = rawCallData?.getNativeCallMetadata() ?: return@before
+                try {
+                    callNativeMethod(callData).let {
+                        promiseResolve.invoke(promise!!, mapOf(NATIVE_CALL_KEY to it).toNativeObject())
+                        result = null
+                    }
+                } catch (e: Throwable) {
+                    log.e("Error calling native method", e)
                 }
             }
         }
@@ -162,16 +166,14 @@ private fun Tweak.setupNativeToJSBridge(classLoader: ClassLoader) {
     )
 }
 
-private fun Any?.isMaybeNativeCall(): Boolean {
-    if (this !is Map<*, *>) return false
-    if (!this.containsKey(NATIVE_CALL_KEY)) return false
-    return true
+@Suppress("UNCHECKED_CAST")
+private fun Any?.getNativeCallMetadata(): Map<String, Any?>? = when (this) {
+    null -> null    
+    else -> toHashMap()[NATIVE_CALL_KEY] as? Map<String, Any?>
 }
 
 @Suppress("UNCHECKED_CAST")
-private fun callNativeMethod(rawCallData: Any): Map<String, Any?> = try {
-    val callData = rawCallData.toHashMap()[NATIVE_CALL_KEY] as? Map<String, Any?>
-        ?: throw Error("Invalid native call data")
+private fun callNativeMethod(callData: Map<String, Any?>): Map<String, Any?> = try {
     val name = callData[NATIVE_CALL_METHOD_KEY] as? String
         ?: throw Error("Invalid native call method name")
     val method = methods[name]
